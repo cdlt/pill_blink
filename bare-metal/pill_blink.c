@@ -1,17 +1,20 @@
 void __attribute__ ((weak, naked)) reset_handler(void) {
     (*(volatile unsigned int *)(0x40021018)) |= (1 << 4);
 
-    (*(volatile unsigned int *)(0x40011004)) |= (0x00 << (((13 - 8) * 4) + 2));
+     // or logical from 0x00 do not affect in 0x40011004 register (*(volatile unsigned int *)(0x40011004)) |= (0x00 << (((13 - 8) * 4) + 2));
+    (*(volatile unsigned int *)(0x40011004)) &=  0b11111111001111111111111111111111; //correct operation
     (*(volatile unsigned int *)(0x40011004)) |= (0x02 << ((13 - 8) * 4));
 
     while(1) {
         (*(volatile unsigned int *)(0x40011010)) = (1 << 13);
         for (int i = 0; i < 1000000; ++i) __asm__("nop");
 
-        (*(volatile unsigned short *)(0x40011014)) = (1 << 13);
+        (*(volatile unsigned int *)(0x40011010)) = (1 << (13+16));
         for (int i = 0; i < 500000; ++i) __asm__("nop");
+               
+       // (*(volatile unsigned short *)(0x40011014)) = (1 << 13);
+       // for (int i = 0; i < 500000; ++i) __asm__("nop");
     }
-}
 
 __attribute__ ((section(".vectors")))
 struct {
